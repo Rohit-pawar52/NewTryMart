@@ -10,7 +10,7 @@ async function getOrders(req, res) {
     const limit = parseInt(req.query.limit) || 10;
     const offset = parseInt(req.query.offset) || 0;
     const status = req.query.order_status;
-    const startDate = req.query.startDate; // Expecting ISO string or YYYY-MM-DD
+    const startDate = req.query.startDate;
     const endDate = req.query.endDate;
 
     // Build user search filter

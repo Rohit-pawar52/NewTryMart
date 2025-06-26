@@ -2,6 +2,7 @@ const Order = require("../../models/Order");
 const OrderItemDetail = require("../../models/OrderDetails");
 const VariantOption = require("../../models/VariantOption");
 const Cart = require("../../models/Cart");
+const Transaction = require("../../models/Transaction");
 /**
  * Get all orders for the authenticated user
  */
@@ -145,6 +146,17 @@ async function placeOrder(req, res) {
 
       await order.save();
       orderResults.push(order._id);
+
+      const transaction = new Transaction({
+        order_id: order._id,
+        user_id: userId,
+        paid_by: userId,
+        paid_to: sellerKey === "admin" ? null : items[0].seller_id?._id,
+        payment_status: "Pending",
+        amount: totalOrderPrice,
+      });
+
+      await transaction.save();
 
       await OrderItemDetail.updateMany(
         { _id: { $in: orderItemIds } },
@@ -365,6 +377,17 @@ async function placeOrderOnline(req, res) {
 
       await order.save();
       orderResults.push(order._id);
+
+      const transaction = new Transaction({
+        order_id: order._id,
+        user_id: userId,
+        paid_by: userId,
+        paid_to: sellerKey === "admin" ? null : items[0].seller_id?._id,
+        amount: totalOrderPrice,
+        payment_status: "Paid",
+      });
+
+      await transaction.save();
 
       await OrderItemDetail.updateMany(
         { _id: { $in: orderItemIds } },
